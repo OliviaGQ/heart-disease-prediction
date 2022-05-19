@@ -1,0 +1,80 @@
+import pandas as pd
+import requests
+from collections import defaultdict
+from sklearn.linear_model import LogisticRegression
+from sklearn.decomposition import PCA
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
+from sklearn.metrics import confusion_matrix, precision_score, recall_score
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import PolynomialFeatures, OneHotEncoder
+import matplotlib.pyplot as plt
+
+plt.rcParams["font.size"] = 16
+df = pd.read_csv('https://query.data.world/s/tvlbtu4hlweclxx5cxdzvjposlsmmu')
+
+#Figure 1: descriptive stats
+presence=df[df["Heart Disease"]=="Presence"]
+male=presence[presence["Sex"]==1].Age.value_counts().sort_index()/len(presence[presence["Sex"]==1])
+female=presence[presence["Sex"]==0].Age.value_counts().sort_index()/len(presence[presence["Sex"]==0])
+ax=male.plot.line(label="male",color="blue")
+female.plot.line(ax=ax,label="female",color="red")
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+ax.legend(frameon=False)
+ax.set_xlabel("Age")
+ax.set_ylabel("Percent")
+ax.set_title("Figure 1: Age Effect on Heart Disease", pad=20)
+
+pca = PCA(1)
+df["pc1"] = pca.fit_transform(df[["BP","Cholesterol","Max HR"]])
+df.head()
+
+df1 = df[df["Sex"]==1]
+df0 = df[df["Sex"]==0]
+
+#Figure 2: unsupervised ML
+ax=df1.plot.scatter(x="pc1",y="ST depression",color="blue",label="male")
+df0.plot.scatter(ax=ax,x="pc1",y="ST depression",color="red",label="female")
+ax.legend(frameon=False)
+ax.set_title("Figure 2: Heart Condition and Sex", pad=20)
+
+pca.explained_variance_ratio_
+
+train, test = train_test_split(df, stratify=df["Heart Disease"], random_state=0)
+train.shape, test.shape
+
+xcols = ["Age","BP", "Cholesterol", "Max HR", "ST depression"]
+ycol = "Heart Disease"
+
+lr = LogisticRegression()
+lr.fit(train[xcols],train[ycol])
+print("Score", lr.score(test[xcols], test[ycol]))
+lr.coef_
+
+pipe = Pipeline([ 
+    ("std", StandardScaler()),
+    ("lr", LogisticRegression()),
+])
+pipe.fit(train[xcols],train[ycol])
+print("Score",pipe.score(test[xcols], test[ycol]))
+pipe['lr'].coef_
+
+test = test.copy()
+test["predicted_result"] = pipe.predict(test[xcols])
+test
+
+accuracy_score(test["Heart Disease"],test["predicted_result"])
+
+pipe['lr'].coef_[0]
+
+#Figure 3:supervised ML
+idx = [t for t in xcols]
+ax = pd.Series(pipe['lr'].coef_[0],index=idx).plot.barh()
+ax.set_xlabel("Weight")
+ax.set_ylabel("Feature")
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+ax.set_title("Figure 3: Logistic Regression Coefficients", pad=20)
