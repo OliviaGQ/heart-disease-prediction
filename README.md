@@ -56,3 +56,9 @@ happen based on different health indicators of patients. We can learn the effect
 through figures. ST depression is the most significant indicator for whether heart disease will happen or
 not. Overall, the analysis of those independent predictive variables can provide a more accurate way for
 researchers to treat heart disease and avoid becoming more severe
+
+<img width="352" alt="e4085236a8427050dbf41c8736d6523" src="https://user-images.githubusercontent.com/78265042/169206318-e009737c-1115-4ec3-ae6e-4fd24b59dd7a.png">
+
+<img width="370" alt="328da36bd15fd42fa8f487ffe96809f" src="https://user-images.githubusercontent.com/78265042/169206335-32a4e643-7a8c-40b7-8702-d735aea694aa.png">
+
+<img width="418" alt="2511b114cc6ea3359bd332b5c3eafb4" src="https://user-images.githubusercontent.com/78265042/169206353-8354c3c8-73bb-4dae-9dd4-1c5e16da3887.png">
